@@ -13,4 +13,4 @@ Here how it works
 You can also see the title of each movie by clicking in the marker
 ![alt text](https://github.com/mkruhliy/map_movies/blob/main/example3.png?raw=true)
 
-For any information please contact me mkruhliy@gmai.com
+For any information please contact me mkruhliy@gmail.com
