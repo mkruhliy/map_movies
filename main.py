@@ -1,7 +1,7 @@
 """
 HTML Map
 """
-#import time
+# import time
 
 import argparse
 import pandas as pd
@@ -9,6 +9,7 @@ import folium
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 from geopy.extra.rate_limiter import RateLimiter
+from haversine import *
 
 
 parser = argparse.ArgumentParser()
@@ -64,7 +65,7 @@ def FormatingData(file):
         location.append(result)
 
     df = pd.DataFrame({'NAMES': names, 'YEARS': years, 'LOCATIONS': location})
-
+    df = df[df['YEARS'] == args.year]
     return df
 
 
@@ -95,9 +96,10 @@ def LatitudeLongtitude(file):
     df = df[df['LON'] != 'NODATA']
     distance = []
 
-    for i in zip(list(df['LAT']),list(df['LON'])):
-        miles = geodesic((args.lat, args.lon), i).miles
-        distance.append(round(miles, 2))
+    for i, j in zip(list(df['LAT']),list(df['LON'])):
+
+        distance1 = haversine((float(args.lat), float(args.lon)), (float(i), float(j)))
+        distance.append(round(distance1, 2))
     df['DISTANCE'] = distance
 
     return df
@@ -107,8 +109,8 @@ def Map(file):
     """
     Generating map
     """
-    df_by_year = LatitudeLongtitude(file)
-    df_close = df_by_year.sort_values(by=['DISTANCE'])
+    df = LatitudeLongtitude(file)
+    df_close = df.sort_values(by=['DISTANCE'])
     df_close = df_close.drop_duplicates(subset=['DISTANCE'])
     df_close = df_close[:10]
 
@@ -118,7 +120,7 @@ def Map(file):
                                 popup="Your coordinates",
                                  icon=folium.Icon(color='blue')))
     fg_close = folium.FeatureGroup(name="10 closest")
-    fg_by_year = folium.FeatureGroup(name="Year {}".format(args.year))
+    fg_by_year = folium.FeatureGroup(name="All moviies of {}".format(args.year))
 
     lat = df_close['LAT']
     lon = df_close['LON']
@@ -129,15 +131,14 @@ def Map(file):
                                          popup=nm, 
                                          icon=folium.Icon(color='red')))
 
-    df_by_year = df_by_year[df_by_year['YEARS'] == args.year]
-    lat = df_by_year['LAT']
-    lon = df_by_year['LON']
-    nam = df_by_year['NAMES']
+    lat = df['LAT']
+    lon = df['LON']
+    nam = df['NAMES']
 
     for lt, ln, nm in zip(lat, lon, nam):
         fg_by_year.add_child(folium.Marker(location=[lt, ln],
                                                 popup=nm,
-                              icon=folium.Icon(color='purple')))
+                              icon=folium.Icon(color='red')))
 
     map.add_child(fg_by_year)
     map.add_child(fg_close)
