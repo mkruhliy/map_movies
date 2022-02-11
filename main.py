@@ -7,7 +7,6 @@ import argparse
 import pandas as pd
 import folium
 from geopy.geocoders import Nominatim
-from geopy.distance import geodesic
 from geopy.extra.rate_limiter import RateLimiter
 from haversine import *
 
@@ -128,7 +127,7 @@ def Map(file):
 
     for lt, ln, nm in zip(lat, lon, nam):
         fg_close.add_child(folium.Marker(location=[lt, ln],
-                                         popup=nm, 
+                                         popup=nm,
                                          icon=folium.Icon(color='red')))
 
     lat = df['LAT']

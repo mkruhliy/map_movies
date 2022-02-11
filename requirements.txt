@@ -2,3 +2,4 @@ folium
 geopy
 pandas
 argparse
+haversine
